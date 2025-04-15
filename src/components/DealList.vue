@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted } from "vue";
 import { useApiStore } from "../stores/apiStore";
+import { useRouter } from "vue-router";
 
 const apiStore = useApiStore();
-
+const router = useRouter();
 onMounted(async () => {
   apiStore.fetchDeals();
   apiStore.getStatus();
@@ -12,8 +13,8 @@ onMounted(async () => {
 const logout = () => {
   localStorage.removeItem("sid");
   localStorage.removeItem("isAuthenticated");
-
-  location.reload();
+  apiStore.isAuth = false;
+  router.push("/");
 };
 </script>
 <template>
@@ -24,6 +25,7 @@ const logout = () => {
         <div class="deal-info">
           <span class="deal-name">{{ deal.order_name }}</span>
           <span class="deal-id">ID: {{ deal.order_id }}</span>
+          <span class="deal-name">{{ deal.order_sum }} RUB</span>
         </div>
         <div class="deal-actions">
           <select v-model="deal.order_status_id" class="status-select">
@@ -46,12 +48,10 @@ const logout = () => {
         </div>
       </li>
     </ul>
-    <p v-if="apiStore.error" class="error-message">{{ apiStore.error }}</p>
+
     <button class="logout-button" @click="logout">Выйти</button>
   </div>
 </template>
-
-
 
 <style scoped>
 .deal-list {
@@ -91,7 +91,9 @@ ul {
 }
 
 .deal-info {
-  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  column-gap: 20px;
 }
 
 .deal-name {

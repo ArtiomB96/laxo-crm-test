@@ -1,19 +1,26 @@
 <script setup>
 import { ref, defineEmits } from "vue";
+import { useRouter } from "vue-router";
 import { useApiStore } from "../stores/apiStore";
 
 const apiStore = useApiStore();
-
+const router = useRouter();
 const login = ref("");
 const password = ref("");
 const responseMessage = ref("");
+
 const emit = defineEmits(["logout"]);
 
 const authenticate = async () => {
   try {
-    await apiStore.authenticate(login.value, password.value);
-    responseMessage.value = "Успешная авторизация!";
-    emit("authenticated");
+    await apiStore.authenticate(login.value, password.value, router);
+
+    if (apiStore.isAuth) {
+      responseMessage.value = "Успешная авторизация!";
+      emit("authenticated");
+    } else {
+      responseMessage.value = apiStore.errorMsg || "Ошибка авторизации";
+    }
   } catch (error) {
     responseMessage.value = `Ошибка авторизации: ${error.message}`;
   }
